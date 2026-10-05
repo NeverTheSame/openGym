@@ -4,8 +4,10 @@ import { webauthnOK, passkeyLogin, passkeyRegister, bio } from '../lib/api.js'
 import { hasData } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import { DEMO, REPO } from '../lib/demo.js'
+import { PHYSIO } from '../lib/physio.js'
 import { guestAllowed } from '../lib/guest.js'
 import { useState, useRef, useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 import Icon from '../components/Icon.jsx'
 import { Button, Segmented } from '../components/ui.jsx'
 import { askAddDeviceData } from '../sheets.jsx'
@@ -70,6 +72,9 @@ export default function Login() {
   const config = useStore(s => s.config)
   const canGuest = guestAllowed(config)
   const pwOn = passwordOn(config)
+  // Physio build: nothing to sign in to, and no landing screen to pass. Boot makes this browser a
+  // guest; should anything have undone that, it is one again — on Home, where a guest lands.
+  useEffect(() => { if (PHYSIO) setGuest(true) }, [setGuest])
   const register = () => useUI.getState().openSheet(close => <RegisterSheet close={close} />)
   const signIn = async () => {
     try { const u = await passkeyLogin(); setUser(u, { adopt: true }); await adoptProfile(askAddDeviceData); useUI.getState().toast(t('Welcome back, {0}', u.name)) }
@@ -81,6 +86,7 @@ export default function Login() {
   </>
   const wrap = { display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '78vh', textAlign: 'center' }
 
+  if (PHYSIO) return <Navigate to="/home" replace />
   // Demo build: no backend to sign in against — the only way in is the local guest profile.
   if (DEMO) return (
     <div className="narrow" style={wrap}>

@@ -855,6 +855,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — เสร็จแล้ว',
   'Workout done': 'ออกกำลังกายเสร็จแล้ว',
+  '{0} of {1} done': 'เสร็จแล้ว {0} จาก {1}',
   'reps': 'ครั้ง',
   'Most reps in a set per workout': 'จำนวนครั้งมากที่สุดในหนึ่งเซ็ตต่อการออกกำลังกาย',
   'Warm-up sets': 'เซ็ตวอร์มอัพ',

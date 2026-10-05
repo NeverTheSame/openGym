@@ -1025,6 +1025,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — concluído',
   'Workout done': 'Treino concluído',
+  '{0} of {1} done': '{0} de {1} concluídas',
   'reps': 'reps',
   'Most reps in a set per workout': 'Mais reps numa série por treino',
   'Warm-up sets': 'Séries de aquecimento',

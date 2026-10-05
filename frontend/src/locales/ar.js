@@ -712,6 +712,7 @@ export default {
   'Local keeps everything on this phone. Connecting syncs to your own openGym server instead — you can switch later in Settings.': 'الوضع المحلي يحفظ كل شيء على هذا الهاتف. أما الاتصال فيزامن بياناتك مع خادم openGym الخاص بك — ويمكنك التبديل لاحقًا من الإعدادات.',
   '{0} — done': '{0} — مكتمل',
   'Workout done': 'اكتمل التمرين',
+  '{0} of {1} done': 'اكتمل {0} من {1}',
   'reps': 'تكرارات',
   'Most reps in a set per workout': 'أكثر تكرارات في مجموعة لكل تمرين',
   'Warm-up sets': 'مجموعات الإحماء',

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { DEMO } from '../lib/demo.js'
+import { NO_BACKEND } from '../lib/demo.js'
 import { connectionView, actionLabel, syncNowWithToast, pairAgain, connectServer, signInAgain, useOnline } from './ServerSync.jsx'
 import Icon from './Icon.jsx'
 
@@ -20,7 +20,7 @@ export const PENDING_GRACE_MS = 5000
    Pinned under the status bar, above the page and the pinned workout and chat headers, below the
    tab bar, the timer and every sheet. Its height goes into --conn on the root, which the page's
    top padding and those headers add in, so it takes its own room instead of covering a control.
-   The public demo has no server by design and says so itself; it never shows there. */
+   The public demo and the physio build have no server by design; it never shows there. */
 export default function SyncBanner() {
   const nav = useNavigate()
   const user = useStore(s => s.user)
@@ -41,7 +41,7 @@ export default function SyncBanner() {
   const view = connectionView(sync, { online })
   // Signed out on the web, the sign-in screen is the whole app: it hears only that the server
   // ended the session, and that the changes are still here.
-  const show = !DEMO && !onboarding && !!view?.banner && (!!user || guest || status === 'auth') && (status !== 'pending' || waited)
+  const show = !NO_BACKEND && !onboarding && !!view?.banner && (!!user || guest || status === 'auth') && (status !== 'pending' || waited)
 
   useLayoutEffect(() => {
     const root = document.documentElement

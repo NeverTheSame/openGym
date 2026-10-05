@@ -4,6 +4,7 @@ import { localTZ } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import { registerCustom } from '../lib/exercises.js'
 import { DEMO, DEMO_SEEDED } from '../lib/demo.js'
+import { PHYSIO, PHYSIO_SEEDED } from '../lib/physio.js'
 import { rememberDefaultLang } from '../lib/default-lang.js'
 import { guestAllowed } from '../lib/guest.js'
 import { MOBILE, initReminderSync, nativeLoad, nativeSave, onAppActive, readJsonFile, syncReminder, writeAutoBackup, writeJsonFile } from '../lib/mobile.js'
@@ -442,6 +443,14 @@ export const useStore = create((set, get) => {
       pushTm = setTimeout(() => get().pushState(), 1500)
     }
     pushPending = false
+  }
+  // Physio build: seeds unless this profile's question is answered already (PHYSIO_SEEDED). It is
+  // marked only once answered — seeded, or left alone because it holds data — so a seed whose
+  // chunk could not load (the signal lost on a first visit) is tried again on the next boot, and
+  // the boot itself goes on either way.
+  const seedPhysioOnce = async () => {
+    if (localStorage.getItem(PHYSIO_SEEDED)) return
+    try { await get().seedPhysio(); localStorage.setItem(PHYSIO_SEEDED, '1') } catch { /* the next boot asks again */ }
   }
 
   // A signed-in device shows what the server has. Coming back — to the tab, the window, the app,
@@ -1008,6 +1017,9 @@ export const useStore = create((set, get) => {
       S.resetAt = Math.max(Date.now(), (Number(cur.resetAt) || 0) + 1)
       S.resetIds = mergeResetIds(cur.resetIds, resetIdsOf(cur))
       get().replaceState(S, !!get().user)
+      // Physio build: the six exercises and their routine are the app, not the history the reset
+      // is for — they come straight back, as on a first boot (or on the next, should that fail).
+      if (PHYSIO) { localStorage.removeItem(PHYSIO_SEEDED); return seedPhysioOnce() }
       if (!get().user) return Promise.resolve()
       return api('/api/data').then(res => {
         const now = get().S
@@ -1384,6 +1396,17 @@ export const useStore = create((set, get) => {
       // The demo's photos and videos were only ever in this browser, and the reset takes them too.
       await mediaStore.clearAll().catch(() => {})
     },
+    // Physio build only: the six exercises and their daily routine, once, and never over a
+    // profile that already holds something (hasData) — this is a real history, not a demo.
+    // Dynamic import for the same reason as the demo's. Resolves whether it seeded.
+    async seedPhysio() {
+      if (hasData(get().S)) return false
+      const { buildPhysioState } = await import('../lib/physioSeed.js')
+      if (hasData(get().S)) return false   // something landed while it loaded — a second call, say
+      markOwed(false)
+      persist(Object.assign(clone(get().S), buildPhysioState()), false)
+      return true
+    },
 
     // Boot: ask the server who we are, then pull.
     async boot() {
@@ -1458,6 +1481,16 @@ export const useStore = create((set, get) => {
         // the choice. Picking local (even with no data yet) persists that choice below and this
         // never asks again.
         finishBoot({ needsMobileOnboarding: !remote && !hasData(get().S) })
+        return
+      }
+      // Physio build (GitHub Pages): no backend — seed once, stay in guest mode. The pictures are
+      // checked at every boot, not only the first, and not awaited: a slow or failed fetch never
+      // holds the app at the splash screen (lib/physio-media.js).
+      if (PHYSIO) {
+        await seedPhysioOnce()
+        get().setGuest(true)
+        finishBoot()
+        import('../lib/physio-media.js').then(m => m.restorePhysioMedia()).catch(() => {})
         return
       }
       // Demo build (GitHub Pages): no backend at all — seed once, stay in guest mode.

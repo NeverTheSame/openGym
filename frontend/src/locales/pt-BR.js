@@ -1008,6 +1008,7 @@ export const PT_BR_OVERRIDES = {
   'Teal': 'Turquesa',
   'Yellow': 'Amarelo',
   'Enter how long it took — at least 1 minute.': 'Informe quanto tempo levou — pelo menos 1 minuto.',
+  '{0} of {1} done': '{0} de {1} concluídas',
 }
 
 export default { ...pt, ...PT_BR_OVERRIDES }

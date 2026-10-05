@@ -1025,6 +1025,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — पूरा',
   'Workout done': 'कसरत पूरी',
+  '{0} of {1} done': '{1} में से {0} पूरे',
   'reps': 'रेप्स',
   'Most reps in a set per workout': 'प्रति कसरत एक सेट में सबसे ज़्यादा रेप्स',
   'Warm-up sets': 'वार्म-अप सेट',

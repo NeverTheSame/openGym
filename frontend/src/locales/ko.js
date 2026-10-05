@@ -1025,6 +1025,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — 완료',
   'Workout done': '운동 완료',
+  '{0} of {1} done': '{1}회 중 {0}회 완료',
   'reps': '회',
   'Most reps in a set per workout': '운동당 한 세트 최다 횟수',
   'Warm-up sets': '워밍업 세트',

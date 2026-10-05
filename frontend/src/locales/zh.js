@@ -1025,6 +1025,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — 已完成',
   'Workout done': '训练已完成',
+  '{0} of {1} done': '已完成 {0}/{1}',
   'reps': '次',
   'Most reps in a set per workout': '每次训练单组最多次数',
   'Warm-up sets': '热身组',

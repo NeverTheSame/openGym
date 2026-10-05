@@ -833,6 +833,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — зроблено',
   'Workout done': 'Тренування зроблено',
+  '{0} of {1} done': '{0} з {1} зроблено',
   'reps': 'повт.',
   'Most reps in a set per workout': 'Найбільше повт. в підході за тренування',
   'Warm-up sets': 'Розминкові підходи',

@@ -1025,6 +1025,7 @@ export default {
   // --- workout notes and planned warm-ups ---
   '{0} — done': '{0} — tamamlandı',
   'Workout done': 'Antrenman tamamlandı',
+  '{0} of {1} done': '{0}/{1} tamamlandı',
   'reps': 'tekrar',
   'Most reps in a set per workout': 'Antrenman başına bir sette en çok tekrar',
   'Warm-up sets': 'Isınma setleri',

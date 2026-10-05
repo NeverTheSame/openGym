@@ -824,6 +824,7 @@ export default {
   'reps': 'ism.',
   'Workout done': 'Edzés kész',
   '{0} — done': '{0} — kész',
+  '{0} of {1} done': '{0} / {1} kész',
   'Local keeps everything on this phone. Connecting syncs to your own openGym server instead — you can switch later in Settings.': 'A helyi mód mindent ezen a telefonon tart. A csatlakozás helyette a saját openGym szervereddel szinkronizál — ezt később a Beállításokban módosíthatod.',
   'Use on this device': 'Használat ezen az eszközön',
   'How do you want to use openGym?': 'Hogyan szeretnéd használni az openGym-et?',

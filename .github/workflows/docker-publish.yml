@@ -23,6 +23,8 @@ permissions:
 
 jobs:
   build:
+    # Forks do not publish openGym's images: a push to a fork's main builds nothing.
+    if: github.repository == 'DuarteSantos8/openGym'
     runs-on: ubuntu-latest
     strategy:
       matrix:

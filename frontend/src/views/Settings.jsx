@@ -14,7 +14,8 @@ import { pushSupported, enablePush, disablePush, sendTestPush, syncPushSubscript
 import { wakeLockSupported } from '../lib/wakelock.js'
 import { t, LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, baseLang } from '../lib/i18n.js'
 import { effectiveLang } from '../lib/default-lang.js'
-import { DEMO, REPO } from '../lib/demo.js'
+import { DEMO, NO_BACKEND, REPO } from '../lib/demo.js'
+import { PHYSIO } from '../lib/physio.js'
 import { MOBILE, isAndroid, shareExport, shareExportBlob, syncReminder } from '../lib/mobile.js'
 import { referencedFiles } from '../lib/media-refs.js'
 import { mediaStore } from '../lib/media-store.js'
@@ -44,7 +45,7 @@ export default function Settings() {
   const lang = effectiveLang(S, config)
   // This profile's passkeys and the code for another device (#95). A change to them is read back
   // here and by the password row, whose "Remove" depends on there being a passkey.
-  const passkeys = usePasskeys(!!user && !MOBILE && !DEMO)
+  const passkeys = usePasskeys(!!user && !MOBILE && !NO_BACKEND)
   const [credsV, setCredsV] = useState(0)
   const credsChanged = () => { passkeys.load(); setCredsV(v => v + 1) }
   const { update, importConflict, importBackup, setUnit, resetEverything: resetAll, setUser, pullState, pushState, resetDemo } = useStore()
@@ -220,6 +221,13 @@ export default function Settings() {
   }
   // Whether any custom exercise has a photo or video: the rows about them only show then.
   const hasMedia = referencedFiles(S).length > 0
+  // Backup in and out: under Data, or — in the physio build, where there is no account to show
+  // instead — at the top, under "Your data".
+  const backupRows = <>
+    <Row icon="upload" iconTint="var(--blue)" title={t('Import backup')} accessory="chevron" onClick={() => fileRef.current.click()} />
+    <Row icon="download" iconTint="var(--blue)" title={t('Export backup (JSON)')} subtitle={hasMedia ? t('Without photos and videos') : undefined} accessory="chevron" onClick={doExport} />
+    {hasMedia && <Row icon="download" iconTint="var(--blue)" title={t('Export with photos & videos (.zip)')} accessory="chevron" onClick={doExportZip} />}
+  </>
   const registerHere = () => useUI.getState().openSheet(close => <RegisterInline close={close} setUser={setUser} pushState={pushState} pullState={pullState} toast={toast} />)
   /* Disconnect (phone), Sign out, Sign out everywhere. None of them wipes this device while the
      server is missing a change: the confirm no longer promises a sync it never checked, and when
@@ -278,7 +286,7 @@ export default function Settings() {
     {/* ---------- the server: which one, which account, how that stands, "Sync now" ----------
         A paired phone's Admin and Disconnect sit in the same block; a browser's account rows
         follow in their own. */}
-    {user && !DEMO && <ServerSyncSection>
+    {user && !NO_BACKEND && <ServerSyncSection>
       {MOBILE && <>
         {user.admin && <Row icon="wrench" iconTint="var(--indigo)" title={t('Admin dashboard')} accessory="chevron" onClick={() => nav('/admin')} />}
         <AccountIdRow id={user.id} />
@@ -286,14 +294,14 @@ export default function Settings() {
       </>}
     </ServerSyncSection>}
 
-    {/* ---------- account (demo and mobile builds have nothing to sign in to) ---------- */}
-    {!(MOBILE && user) && <Section title={MOBILE ? t('Your data') : DEMO ? t('Demo') : t('Account')}>
+    {/* ---------- account (demo, physio and mobile builds have nothing to sign in to) ---------- */}
+    {!(MOBILE && user) && <Section title={MOBILE || PHYSIO ? t('Your data') : DEMO ? t('Demo') : t('Account')}>
       {MOBILE ? <>
         <Row icon="lock" iconTint="var(--acc)" title={t('All data stays on this phone')} subtitle={t('No account, no cloud — back it up anytime with Export below.')} />
         <Row icon="link" iconTint="var(--indigo)" title={t('Connect to my server')} subtitle={t('Sync this device to your own self-hosted openGym instead.')} accessory="chevron"
           onClick={connectServer} />
         <KeptChangesRows />
-      </> : DEMO ? <>
+      </> : PHYSIO ? backupRows : DEMO ? <>
         <Row icon="sparkles" iconTint="var(--acc)" title={t('You’re in the demo')} subtitle={t('Example data, stored only in this browser — change anything you like.')} />
         <Row icon="reset" iconTint="var(--blue)" title={t('Reset demo data')} accessory="chevron"
           onClick={() => confirmSheet({ title: t('Reset demo data?'), message: t('Puts the example plan, workouts and weigh-ins back the way they started.'), confirmText: t('Reset'), onConfirm: () => { resetDemo(); nav('/home'); toast(t('Demo data reset')) } })} />
@@ -324,7 +332,7 @@ export default function Settings() {
         <KeptChangesRows />
       </>}
     </Section>}
-    {!user && !DEMO && !MOBILE && <p className="sect-f" style={{ marginTop: -18, marginBottom: 22 }}>{t('Guest mode — data lives only in this browser.')}</p>}
+    {!user && !NO_BACKEND && !MOBILE && <p className="sect-f" style={{ marginTop: -18, marginBottom: 22 }}>{t('Guest mode — data lives only in this browser.')}</p>}
 
     {/* ---------- the Coach on a phone: through the paired server, or with the user's own key ---------- */}
     {MOBILE && <Section title={t('AI Coach')}>
@@ -508,7 +516,7 @@ export default function Settings() {
     <EquipmentCard S={S} update={update} />
 
     {/* ---------- appearance ---------- */}
-    <Section title={t('Appearance')} footer={DEMO || MOBILE ? undefined : t('synced with your profile')}>
+    <Section title={t('Appearance')} footer={NO_BACKEND || MOBILE ? undefined : t('synced with your profile')}>
       <Row icon="moon" iconTint="var(--indigo)" title={t('Theme')}>
         <Segmented
           className="seg-inline"
@@ -550,9 +558,7 @@ export default function Settings() {
       <Row icon="key" iconTint="var(--teal)" title={t('Import from Hevy')}
         subtitle={t('Pull your history with a Hevy Pro API key')}
         accessory="chevron" onClick={importFromHevy} />
-      <Row icon="upload" iconTint="var(--blue)" title={t('Import backup')} accessory="chevron" onClick={() => fileRef.current.click()} />
-      <Row icon="download" iconTint="var(--blue)" title={t('Export backup (JSON)')} subtitle={hasMedia ? t('Without photos and videos') : undefined} accessory="chevron" onClick={doExport} />
-      {hasMedia && <Row icon="download" iconTint="var(--blue)" title={t('Export with photos & videos (.zip)')} accessory="chevron" onClick={doExportZip} />}
+      {!PHYSIO && backupRows}
       {hasMedia && <MediaRow />}
       {/* 14 is AUTO_BACKUP_KEEP in lib/mobile.js, written out because the Settings tests mock
           that module wholesale; mobile.autobackup.test.js pins the two together. */}
@@ -847,6 +853,9 @@ async function clearMediaAfterReset(signedIn) {
     if (now.sync?.status === 'ok' && now.config?.media) await api('/api/media/sweep', { method: 'POST', body: '{}' }).catch(() => {})
   }
   const keep = typeof st.stashedMediaHashes === 'function' ? await st.stashedMediaHashes() : new Set()
+  // Physio build: the card pictures ship with the app, and the exercises showing them come straight
+  // back after the reset (useStore resetEverything) — they are not the reset's to delete.
+  if (PHYSIO) for (const c of (await import('../lib/physio-cards.json')).default) keep.add(c.hash)
   await mediaStore.retainOnly(keep)
 }
 
